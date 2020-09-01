@@ -4,5 +4,7 @@
         <file>arrow_left.png</file>
         <file>reset_scores.png</file>
         <file>arrow_right.png</file>
+        <file>o.png</file>
+        <file>x.png</file>
     </qresource>
 </RCC>
