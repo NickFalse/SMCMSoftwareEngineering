@@ -6,5 +6,6 @@
         <file>arrow_right.png</file>
         <file>o.png</file>
         <file>x.png</file>
+        <file>appico.ico</file>
     </qresource>
 </RCC>

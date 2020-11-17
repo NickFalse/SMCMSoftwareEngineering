@@ -11,6 +11,7 @@ Window {
     property int p1ScoreValue: 0
     property int p2ScoreValue: 0
     property var board: [["-1","-1","-1"],["-1","-1","-1"],["-1","-1","-1"]]
+    property var lastMove: [-1, -1]
     property int turn: 1
     property int startedPrevGame: 1
 
@@ -53,6 +54,18 @@ Window {
     {
         board = [["-1","-1","-1"],["-1","-1","-1"],["-1","-1","-1"]];
         boardChange();
+        undoButton.enabled = false;
+    }
+
+    function undo()
+    {
+        board[lastMove[0]][lastMove[1]] = "-1";
+        boardChange();
+        undoButton.enabled = false;
+        if(turn == 1)
+            turn = 2;
+        else
+            turn = 1;
     }
 
     function resetScoreValues()
@@ -83,39 +96,42 @@ Window {
         }
 
         var winningPlayer = checkBoard();
+        if(winningPlayer !== false)
+        {
+            endGameMenu.visible = true;
+            dropShadow.visible = true;
+        }
+
         if(winningPlayer === "X")
         {
             responseText.text = player1Input.text + " Wins!";
-            responseText.color = "#59ad4b";
-            displayResponseText.restart();
+            //displayResponseText.restart();
             p1ScoreValue++;
             turn = 2;
             startedPrevGame = turn;
-            clearBoard();
+            //clearBoard();
             initNames(player1Input.text, player2Input.text);
         }
         else if(winningPlayer === "O")
         {
             responseText.text = player2Input.text + " Wins!";
-            responseText.color = "#59ad4b";
-            displayResponseText.restart();
+            //displayResponseText.restart();
             p2ScoreValue++;
             turn = 1;
             startedPrevGame = turn;
-            clearBoard();
+            //clearBoard();
             initNames(player1Input.text, player2Input.text);
         }
         else if(winningPlayer === "C")
         {
             responseText.text = "Cats Game!";
-            responseText.color = "#ffba60";
-            displayResponseText.restart();
+            //displayResponseText.restart();
             if(startedPrevGame === 1)
                 turn = 2;
             else
                 turn = 1;
             startedPrevGame = turn;
-            clearBoard();
+            //clearBoard();
         }
     }
 
@@ -232,6 +248,9 @@ Window {
                     board[row][col] = "O";
                     turn = 1;
                 }
+
+                lastMove = [row, col];
+                undoButton.enabled = true;
 
                 boardChange();
             }
@@ -419,7 +438,8 @@ Window {
             hoverEnabled: true
 
             onClicked: {
-
+                aboutMenu.visible = true;
+                dropShadow.visible = true;
             }
 
             onEntered: {
@@ -469,15 +489,29 @@ Window {
     }
 
     Image {
-        id: resetScores
+        id: undoButton
         x: 585
         y: 12
         width: 43
         height: 45
         source: "reset_scores.png"
+        opacity: 0.3;
+
+        property bool enabled: false;
+
+        onEnabledChanged: {
+            if(enabled)
+            {
+                opacity = 1.0;
+            }
+            else
+            {
+                opacity = 0.3;
+            }
+        }
 
         MouseArea {
-            id: resetScoresMouseArea
+            id: undoMouseArea
             x: -7
             y: -6
             width: 56
@@ -485,52 +519,175 @@ Window {
             hoverEnabled: true
 
             onClicked: {
-                resetScoreValues();
-                clearBoard();
-                turn = 1;
+                if(undoButton.enabled)
+                {
+                    undo();
+                }
             }
 
             onEntered: {
-                resetScores.opacity = 0.8;
-                cursorShape = Qt.PointingHandCursor;
+                if(undoButton.enabled)
+                {
+                    undoButton.opacity = 0.8;
+                    cursorShape = Qt.PointingHandCursor;
+                }
             }
 
             onExited: {
-                resetScores.opacity = 1.0;
-                cursorShape = Qt.ArrowCursor;
+                if(undoButton.enabled)
+                {
+                    undoButton.opacity = 1.0;
+                    cursorShape = Qt.ArrowCursor;
+                }
             }
         }
     }
 
-    Text {
-        id: responseText
-        y: 160
-        color: "#398d1b"
-        anchors.horizontalCenter: parent.horizontalCenter
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        opacity: 0.0
-        font.pixelSize: 50
-        font.bold: true
-        font.family: "Segoe Print"
+    Rectangle {
+        id: dropShadow
+        x: 0
+        y: 0
+        width: 640
+        height: 480
+        color: "#99000000"
 
-        SequentialAnimation {
-            id: displayResponseText
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+        }
+    }
 
-            PropertyAnimation {
-                target: responseText
-                property: "opacity"
-                to: 1.0
-                duration: 100
+
+
+    Item {
+        id: endGameMenu
+        x: 0
+        y: 0
+        width: 640
+        height: 480
+        visible: false
+
+        Text {
+            id: responseText
+            y: 80
+            color: "#ffffff"
+            text: ""
+            anchors.horizontalCenter: parent.horizontalCenter
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            font.pixelSize: 50
+            font.bold: true
+            font.family: "Segoe Print"
+
+            //        SequentialAnimation {
+            //            id: displayResponseText
+
+            //            PropertyAnimation {
+            //                target: responseText
+            //                property: "opacity"
+            //                to: 1.0
+            //                duration: 100
+            //            }
+            //            PauseAnimation {
+            //                duration: 1000
+            //            }
+            //            PropertyAnimation {
+            //                target: responseText
+            //                property: "opacity"
+            //                to: 0.0
+            //                duration: 200
+            //            }
+            //        }
+        }
+
+        Rectangle {
+            id: playAgainButton
+            x: 185
+            y: 180
+            width: 270
+            height: 70
+            color: "#75d0ff"
+            radius: 20
+            border.width: 10
+            border.color: "#41beff"
+
+            Text {
+                id: playAgainText
+                x: 120
+                y: 0
+                width: 22
+                height: 11
+                color: "#ffffff"
+                text: qsTr("Play Again")
+                font.bold: true
+                font.family: "Segoe Print"
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: 35
             }
-            PauseAnimation {
-                duration: 1000
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+
+                onClicked: {
+                    endGameMenu.visible = false;
+                    dropShadow.visible = false;
+                    clearBoard();
+                }
+
+                onEntered: {
+                    playAgainButton.opacity = 0.8;
+                    cursorShape = Qt.PointingHandCursor;
+                }
+
+                onExited: {
+                    playAgainButton.opacity = 1.0;
+                    cursorShape = Qt.ArrowCursor;
+                }
             }
-            PropertyAnimation {
-                target: responseText
-                property: "opacity"
-                to: 0.0
-                duration: 200
+        }
+
+        Rectangle {
+            id: quitButton
+            x: 185
+            y: 270
+            width: 270
+            height: 70
+            color: "#ff847e"
+            radius: 20
+            border.color: "#ff554c"
+            border.width: 10
+            Text {
+                id: quitText
+                x: 120
+                y: 0
+                width: 22
+                height: 11
+                color: "#ffffff"
+                text: qsTr("Quit")
+                font.pixelSize: 35
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                font.family: "Segoe Print"
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+
+                onClicked: {
+                    close();
+                }
+
+                onEntered: {
+                    quitButton.opacity = 0.8;
+                    cursorShape = Qt.PointingHandCursor;
+                }
+
+                onExited: {
+                    quitButton.opacity = 1.0;
+                    cursorShape = Qt.ArrowCursor;
+                }
             }
         }
     }
@@ -542,15 +699,6 @@ Window {
         width: 214
         height: 480
         color: "#ff6c67"
-
-        Rectangle {
-            id: dropShadow
-            x: 214
-            y: 0
-            width: 427
-            height: 480
-            color: "#99000000"
-        }
 
         Text {
             id: newGameTitle
@@ -680,6 +828,7 @@ Window {
 
             onClicked: {
                 newGameMenu.visible = false;
+                dropShadow.visible = false;
                 initNames(player1Input.text, player2Input.text);
                 turn = 1;
                 resetScoreValues();
@@ -700,9 +849,80 @@ Window {
             }
         }
     }
+
+
+    Item {
+        id: aboutMenu
+        visible: false;
+
+        MouseArea {
+            width: 640
+            height: 480
+
+            onClicked: {
+                aboutMenu.visible = false;
+                dropShadow.visible = false;
+            }
+        }
+
+        Rectangle {
+            id: aboutBox
+            x: 132
+            y: 97
+            width: 400
+            height: 300
+            color: "#ffffff"
+            radius: 15
+            border.width: 6
+            border.color: "#41beff"
+
+            Text {
+                id: aboutDescription
+                x: 33
+                y: 45
+                text: qsTr("Software Name: Tic-Tac-Toe\nVersion Number: 1.0\n\nDevelopers:\nNicholas True - Team Lead\nChristian Oliverio - Documentation Lead\nChristopher Beatrez - Software Engineer\nLucius Latham - Software Engineer")
+                font.bold: true
+                font.family: "Segoe Print"
+                font.pixelSize: 16
+            }
+
+            Rectangle {
+                id: aboutTitleBox
+                x: 75
+                y: -30
+                width: 250
+                height: 60
+                color: "#75d0ff"
+                radius: 15
+                border.width: 6
+                border.color: "#41beff"
+
+                MouseArea {
+                    anchors.fill: parent
+                }
+            }
+
+            Text {
+                id: aboutTitle
+                x: 175
+                y: -24
+                color: "#ffffff"
+                text: qsTr("About")
+                anchors.horizontalCenterOffset: 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.bold: true
+                font.family: "Segoe Print"
+                font.pixelSize: 27
+            }
+
+            MouseArea {
+                anchors.fill: parent
+            }
+        }
+    }
 }
 
 /*##^## Designer {
-    D{i:46;invisible:true}
+    D{i:39;invisible:true}
 }
  ##^##*/
