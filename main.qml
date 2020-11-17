@@ -7,6 +7,10 @@ Window {
     width: 640
     height: 480
     title: qsTr("Tic-Tac-Toe")
+    maximumWidth: 640
+    maximumHeight: 480
+    minimumWidth: 640
+    minimumHeight: 480
 
     property int p1ScoreValue: 0
     property int p2ScoreValue: 0
