@@ -7,5 +7,6 @@
         <file>o.png</file>
         <file>x.png</file>
         <file>appico.ico</file>
+        <file>highlightedCell.png</file>
     </qresource>
 </RCC>

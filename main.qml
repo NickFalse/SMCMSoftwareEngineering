@@ -18,6 +18,7 @@ Window {
     property var lastMove: [-1, -1]
     property int turn: 1
     property int startedPrevGame: 1
+    property int highlightedCell: -1
 
     function checkBoard() {
         for(var i = 0; i < board.length; ++i)
@@ -102,6 +103,7 @@ Window {
         var winningPlayer = checkBoard();
         if(winningPlayer !== false)
         {
+            ticTacToeBoard.focus = false;
             endGameMenu.visible = true;
             dropShadow.visible = true;
         }
@@ -200,6 +202,53 @@ Window {
 
     Item {
         id: ticTacToeBoard
+        focus: false
+
+        Keys.onPressed: {
+            var numberPadUsed = true;
+            if(event.key === Qt.Key_1) ticTacToeBoardImages.cellClicked(2, 0);
+            else if(event.key === Qt.Key_2) ticTacToeBoardImages.cellClicked(2, 1);
+            else if(event.key === Qt.Key_3) ticTacToeBoardImages.cellClicked(2, 2);
+            else if(event.key === Qt.Key_4) ticTacToeBoardImages.cellClicked(1, 0);
+            else if(event.key === Qt.Key_5) ticTacToeBoardImages.cellClicked(1, 1);
+            else if(event.key === Qt.Key_6) ticTacToeBoardImages.cellClicked(1, 2);
+            else if(event.key === Qt.Key_7) ticTacToeBoardImages.cellClicked(0, 0);
+            else if(event.key === Qt.Key_8) ticTacToeBoardImages.cellClicked(0, 1);
+            else if(event.key === Qt.Key_9) ticTacToeBoardImages.cellClicked(0, 2);
+            else numberPadUsed = false;
+
+            if(numberPadUsed)
+                ticTacToeBoardImages.resetHighlightedCell();
+
+            if(event.key === Qt.Key_Up || event.key === Qt.Key_Down || event.key === Qt.Key_Left || event.key === Qt.Key_Right)
+            {
+                if(highlightedCell === -1)
+                    highlightedCell = 0;
+                else
+                {
+                    if(ticTacToeBoardImages.children[highlightedCell].source == "qrc:/highlightedCell.png")
+                        ticTacToeBoardImages.children[highlightedCell].source = "";
+                    ticTacToeBoardImages.children[highlightedCell].opacity = 1.0;
+
+                    if(event.key === Qt.Key_Up && highlightedCell >= 3)
+                        highlightedCell -= 3;
+                    else if(event.key === Qt.Key_Down && highlightedCell < 6)
+                        highlightedCell += 3;
+                    else if(event.key === Qt.Key_Left && highlightedCell % 3 !== 0)
+                        highlightedCell--;
+                    else if(event.key === Qt.Key_Right && (highlightedCell + 1) % 3 !== 0)
+                        highlightedCell++;
+                }
+
+                if(ticTacToeBoardImages.children[highlightedCell].source == "")
+                    ticTacToeBoardImages.children[highlightedCell].source = "highlightedCell.png";
+                ticTacToeBoardImages.children[highlightedCell].opacity = 0.7;
+            }
+            else if(event.key === Qt.Key_Return && highlightedCell !== -1)
+            {
+                ticTacToeBoardImages.cellClicked((highlightedCell / 3) | 0, highlightedCell % 3);
+            }
+        }
 
         Rectangle {
             id: rectangle1
@@ -259,6 +308,17 @@ Window {
                 boardChange();
             }
 
+            function resetHighlightedCell()
+            {
+                if(highlightedCell !== -1)
+                {
+                    if(ticTacToeBoardImages.children[highlightedCell].source == "qrc:/highlightedCell.png")
+                        ticTacToeBoardImages.children[highlightedCell].source = "";
+                    ticTacToeBoardImages.children[highlightedCell].opacity = 1.0;
+                    highlightedCell = -1;
+                }
+            }
+
             Image {
                 id: topLeftImage
                 x: 175
@@ -274,6 +334,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(0, 0)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
 
@@ -292,6 +354,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(0, 1)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
 
@@ -310,6 +374,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(0, 2)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
 
@@ -328,6 +394,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(1, 0)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
 
@@ -346,6 +414,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(1, 1)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
 
@@ -364,6 +434,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(1, 2)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
 
@@ -382,6 +454,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(2, 0)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
 
@@ -400,6 +474,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(2, 1)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
 
@@ -418,6 +494,8 @@ Window {
                     width: 100
                     height: 100
                     onClicked: ticTacToeBoardImages.cellClicked(2, 2)
+                    hoverEnabled: true
+                    onEntered: ticTacToeBoardImages.resetHighlightedCell();
                 }
             }
         }
@@ -444,6 +522,7 @@ Window {
             onClicked: {
                 aboutMenu.visible = true;
                 dropShadow.visible = true;
+                ticTacToeBoard.focus = false;
             }
 
             onEntered: {
@@ -478,6 +557,8 @@ Window {
 
             onClicked: {
                 newGameMenu.visible = true;
+                dropShadow.visible = true;
+                ticTacToeBoard.focus = false;
             }
 
             onEntered: {
@@ -582,26 +663,6 @@ Window {
             font.pixelSize: 50
             font.bold: true
             font.family: "Segoe Print"
-
-            //        SequentialAnimation {
-            //            id: displayResponseText
-
-            //            PropertyAnimation {
-            //                target: responseText
-            //                property: "opacity"
-            //                to: 1.0
-            //                duration: 100
-            //            }
-            //            PauseAnimation {
-            //                duration: 1000
-            //            }
-            //            PropertyAnimation {
-            //                target: responseText
-            //                property: "opacity"
-            //                to: 0.0
-            //                duration: 200
-            //            }
-            //        }
         }
 
         Rectangle {
@@ -637,6 +698,7 @@ Window {
                     endGameMenu.visible = false;
                     dropShadow.visible = false;
                     clearBoard();
+                    ticTacToeBoard.focus = true;
                 }
 
                 onEntered: {
@@ -756,6 +818,8 @@ Window {
                 selectionColor: "#ffaba7"
                 font.pixelSize: 18
                 maximumLength: 18
+                KeyNavigation.tab: player2Input
+                selectByMouse: true
             }
         }
 
@@ -796,6 +860,7 @@ Window {
                 selectionColor: "#ffaba7"
                 font.pixelSize: 18
                 maximumLength: 18
+                selectByMouse: true
             }
         }
 
@@ -833,6 +898,7 @@ Window {
             onClicked: {
                 newGameMenu.visible = false;
                 dropShadow.visible = false;
+                ticTacToeBoard.focus = true;
                 initNames(player1Input.text, player2Input.text);
                 turn = 1;
                 resetScoreValues();
@@ -866,6 +932,7 @@ Window {
             onClicked: {
                 aboutMenu.visible = false;
                 dropShadow.visible = false;
+                ticTacToeBoard.focus = true;
             }
         }
 
@@ -880,7 +947,11 @@ Window {
             border.width: 6
             border.color: "#41beff"
 
-            Text {
+            MouseArea {
+                anchors.fill: parent
+            }
+
+            TextEdit {
                 id: aboutDescription
                 x: 33
                 y: 45
@@ -888,6 +959,9 @@ Window {
                 font.bold: true
                 font.family: "Segoe Print"
                 font.pixelSize: 16
+                readOnly: true
+                wrapMode: Text.WordWrap
+                selectByMouse: true
             }
 
             Rectangle {
@@ -917,10 +991,6 @@ Window {
                 font.bold: true
                 font.family: "Segoe Print"
                 font.pixelSize: 27
-            }
-
-            MouseArea {
-                anchors.fill: parent
             }
         }
     }
